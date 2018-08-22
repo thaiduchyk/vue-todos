@@ -5,11 +5,13 @@
 		placeholder="What needs to be done?"
 		v-on:keyup.enter="addTodo"
 		v-model="text"
+		autofocus
 		>
 	</header>
 </template>
 
-<script type = "text/javascript" >
+<script type = 'text/javascript' >
+import { store } from '../store.js'
 
 export default {
 	data() {
@@ -19,13 +21,12 @@ export default {
 	},
 	methods: {
 		addTodo() {
-			this.$bus.$emit("todoAdded", this.text)
+			let trimedText = this.text.trim()
+			if (trimedText) {
+        		store.addTodo({text: trimedText, done: false})
+      		}  
 			this.text = ''
 		}
 	}
 }  
-
 </script>
-
-<style>
-</style>

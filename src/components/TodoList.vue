@@ -1,33 +1,44 @@
 <template>
   <section class="main">
-  	<input class="toggle-all" type="checkbox" v-model="toggleAll">
-    <ul class='todo-list' v-for="todo in todos">
-        <Todo v-bind:todo="todo"/>
+  	<input class="toggle-all" type="checkbox" v-model="toggleAll" v-show="todos.length" v-on:click="editAll">
+    <ul class='todo-list'>
+        <Todo v-for="todo in todos" v-bind:todo="todo"/>
     </ul> 
   </section>
 </template>
 
 <script type = "text/javascript" >
 import Todo from './Todo'
+import { store } from '../store.js'
 
 export default {
   data() {
   	return {
-  		toggleAll: null
+  		toggleAll: false
   	}
   },
-  props: ['todos'],
+  props: {
+  	todos: Array,
+  	allCompleted: Boolean
+  },
   components: {
     Todo
   },
+  methods: {
+  	editAll () {
+  		store.editAllTodos('done', !this.toggleAll)
+  	}
+  },
   watch: {
-    toggleAll: {
-      handler: function () {
-      	const toggleAll = this.toggleAll
-        this.todos.forEach(function (todo, index) {
-			todo.done = toggleAll
-	  	});
-      }
+    allCompleted: {
+      handler() {
+      	if (this.allCompleted) {
+      		this.toggleAll = true
+      	} else {
+      		this.toggleAll = false
+      	}
+      },
+      deep: true	
     }
   }
 }  

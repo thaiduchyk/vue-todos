@@ -16,9 +16,12 @@
 </template>
 
 <script type = "text/javascript" >
+import { store } from '../store.js'
 
 export default {
-  props: ['todo'],
+  props: {
+    todo: Object
+  },
   data() {
     return {
       edited: false,
@@ -27,7 +30,7 @@ export default {
   }, 
   methods: {
     deleteTodo() {
-      this.$bus.$emit("todoDeleted", this.todo)
+      store.deleteTodo(this.todo)
     },
     toggleEdited(bool) {
       this.edited = bool
@@ -37,6 +40,7 @@ export default {
       this.toggleEdited(true)
     },
     finishEditing() {
+      if(!this.edited) { return }
       this.todo.text = this.todo.text.trim()
       if(!this.todo.text){
         this.deleteTodo(this.todo)
@@ -50,8 +54,4 @@ export default {
     }
   }
 }  
-
 </script>
-
-<style>
-</style>

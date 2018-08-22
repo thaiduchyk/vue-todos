@@ -10,7 +10,7 @@
         </ul>
         <button 
           class="clear-completed" 
-          v-show="completedCount"
+          v-show="completedTodos.length"
           v-on:click="clearCompleted">
           Clear completed
         </button>
@@ -18,30 +18,35 @@
 </template>
 
 <script type = "text/javascript" >
+import { store } from '../store.js'
 
 const ALLOWED_FILTERS = ['all', 'active', 'completed']
+const DEFAULT_FILTER = 'all'
 
 export default {
 	props: {
 		activeCount: Number,
-		completedCount: Number,
+		completedTodos: Array,
 		currentFilter: String
 	},
 	mounted() {
+		this.setFilter()
 		window.addEventListener('hashchange', this.setFilter);
 	},
 	methods: {
 		setFilter() {
 			const filter = window.location.hash.replace(/#\/?/, '');
 		    if (ALLOWED_FILTERS.includes(filter)) {
-		      this.$bus.$emit("filterSet", filter)
+		      store.setFilter(filter)
 		    } else {
 		      window.location.hash = ''
-		      this.$bus.$emit("filterSet", 'all')
+		      store.setFilter(DEFAULT_FILTER)
 		    }
 		},
 		clearCompleted() {
-			this.$bus.$emit("completedCleared")
+			this.completedTodos.forEach(function(todo) {
+				store.deleteTodo(todo)
+			});
 		}
 	},
 	computed: {

@@ -2,11 +2,14 @@
   <div id="app">
     <section class="todoapp">
       <AddTodo/>
-      <TodoList v-bind:todos="filteredTodos"/>
+      <TodoList 
+        v-bind:todos="filteredTodos"
+        v-bind:allCompleted="allCompleted"
+      />
       <Filters
         v-show="todos.length" 
         v-bind:activeCount="activeTodos.length"
-        v-bind:completedCount="completedTodos.length"
+        v-bind:completedTodos="completedTodos"
         v-bind:currentFilter="currentFilter"
       />
     </section>
@@ -22,6 +25,7 @@
 import TodoList from './components/TodoList'
 import AddTodo from './components/AddTodo'
 import Filters from './components/Filters'
+import { store } from './store.js';
 
 export default {
   name: 'App',
@@ -32,18 +36,19 @@ export default {
   },
   data() {
     return {
-      todos: [],
-      currentFilter: 'all'
+      storeState: store.state
     }
   },
-  mounted() {
-    this.todos = JSON.parse(localStorage.getItem('todos') || '[]');
-    this.$bus.$on("todoDeleted", this.removeTodo);
-    this.$bus.$on("todoAdded", this.addTodo); 
-    this.$bus.$on("filterSet", this.setCurrentFilter);  
-    this.$bus.$on("completedCleared", this.clearCompleted);
+  beforeCreate() {
+    store.initTodos(JSON.parse(localStorage.getItem('todos') || '[]'));
   },
   computed: {
+    todos () {
+      return this.storeState.todos
+    },
+    currentFilter () {
+      return this.storeState.filter
+    }, 
     filteredTodos: function () {
       if (this.currentFilter === 'all') {
         return this.todos
@@ -58,32 +63,10 @@ export default {
     },
     completedTodos () {
       return this.todos.filter(todo => todo.done); 
+    },
+    allCompleted () {
+      return this.todos.length && !this.activeTodos.length;
     }
-  },
-  methods: {
-    addTodo(text) {
-      if (text.trim()) {
-        this.todos.push({id: this.generateId(), text: text, done: false})
-      }  
-    },
-    removeTodo(todo) {
-      const todoIndex = this.todos.indexOf(todo);
-      this.todos.splice(todoIndex, 1);
-    },
-    clearCompleted() {
-      this.completedTodos.forEach(this.removeTodo)
-    },
-    generateId() {
-      if (this.todos.length) {
-        let currentId = this.todos[this.todos.length - 1].id
-        return ++currentId
-      } else {
-        return 0
-      }
-    },
-    setCurrentFilter(filter) {
-      this.currentFilter = filter
-    } 
   },
   watch: {
     todos: {
@@ -91,7 +74,7 @@ export default {
         localStorage.setItem('todos', JSON.stringify(this.todos))
       },
       deep: true
-    }
+    },
   }
 }
 </script>
