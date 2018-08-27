@@ -2,22 +2,14 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-
-const EventBus = new Vue()
-
-Object.defineProperties(Vue.prototype, {
-  $bus: {
-    get: function () {
-      return EventBus
-    }
-  }
-})
+import store from './store/index'
 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   components: { App },
   template: '<App/>'
 })

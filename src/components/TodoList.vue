@@ -1,6 +1,6 @@
 <template>
   <section class="main">
-  	<input class="toggle-all" type="checkbox" v-model="toggleAll" v-show="todos.length" v-on:click="editAll">
+  	<input class="toggle-all" type="checkbox" v-model="toggleValue" v-show="todos.length" v-on:click="toggleAll">
     <ul class='todo-list'>
         <Todo v-for="todo in todos" v-bind:todo="todo"/>
     </ul> 
@@ -9,36 +9,33 @@
 
 <script type = "text/javascript" >
 import Todo from './Todo'
-import { store } from '../store.js'
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
   	return {
-  		toggleAll: false
+  		toggleValue: false
   	}
   },
-  props: {
-  	todos: Array,
-  	allCompleted: Boolean
+  computed: {
+  	...mapGetters({
+  		todos: 'getFilteredTodos',
+  		allCompleted: 'allCompleted'
+	})
   },
   components: {
     Todo
   },
   methods: {
-  	editAll () {
-  		store.editAllTodos('done', !this.toggleAll)
+  	toggleAll() {
+  		this.$store.dispatch('toggleAll', !this.toggleValue)
   	}
   },
   watch: {
     allCompleted: {
       handler() {
-      	if (this.allCompleted) {
-      		this.toggleAll = true
-      	} else {
-      		this.toggleAll = false
-      	}
-      },
-      deep: true	
+      	this.toggleValue = this.allCompleted
+      }
     }
   }
 }  

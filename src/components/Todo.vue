@@ -16,7 +16,6 @@
 </template>
 
 <script type = "text/javascript" >
-import { store } from '../store.js'
 
 export default {
   props: {
@@ -30,7 +29,7 @@ export default {
   }, 
   methods: {
     deleteTodo() {
-      store.deleteTodo(this.todo)
+      this.$store.dispatch('deleteTodo', this.todo)
     },
     toggleEdited(bool) {
       this.edited = bool

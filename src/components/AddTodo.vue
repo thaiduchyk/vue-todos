@@ -11,7 +11,6 @@
 </template>
 
 <script type = 'text/javascript' >
-import { store } from '../store.js'
 
 export default {
 	data() {
@@ -23,7 +22,7 @@ export default {
 		addTodo() {
 			let trimedText = this.text.trim()
 			if (trimedText) {
-        		store.addTodo({text: trimedText, done: false})
+        		this.$store.dispatch('addTodo', {text: trimedText})
       		}  
 			this.text = ''
 		}

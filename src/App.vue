@@ -2,16 +2,8 @@
   <div id="app">
     <section class="todoapp">
       <AddTodo/>
-      <TodoList 
-        v-bind:todos="filteredTodos"
-        v-bind:allCompleted="allCompleted"
-      />
-      <Filters
-        v-show="todos.length" 
-        v-bind:activeCount="activeTodos.length"
-        v-bind:completedTodos="completedTodos"
-        v-bind:currentFilter="currentFilter"
-      />
+      <TodoList/>
+      <Filters v-show="todos.length"/>
     </section>
     <footer class="info">
       <p>Double-click to edit a todo</p>
@@ -25,7 +17,6 @@
 import TodoList from './components/TodoList'
 import AddTodo from './components/AddTodo'
 import Filters from './components/Filters'
-import { store } from './store.js';
 
 export default {
   name: 'App',
@@ -34,47 +25,13 @@ export default {
     AddTodo,
     Filters
   },
-  data() {
-    return {
-      storeState: store.state
-    }
-  },
   beforeCreate() {
-    store.initTodos(JSON.parse(localStorage.getItem('todos') || '[]'));
+    this.$store.commit('INITIALIZE_STORE');
   },
   computed: {
     todos () {
-      return this.storeState.todos
-    },
-    currentFilter () {
-      return this.storeState.filter
-    }, 
-    filteredTodos: function () {
-      if (this.currentFilter === 'all') {
-        return this.todos
-      } else if (this.currentFilter === 'active') {
-        return this.activeTodos;  
-      } else {
-        return this.completedTodos;  
-      }
-    },
-    activeTodos () {
-      return this.todos.filter(todo => !todo.done);
-    },
-    completedTodos () {
-      return this.todos.filter(todo => todo.done); 
-    },
-    allCompleted () {
-      return this.todos.length && !this.activeTodos.length;
+      return this.$store.state.todos;
     }
-  },
-  watch: {
-    todos: {
-      handler: function () {
-        localStorage.setItem('todos', JSON.stringify(this.todos))
-      },
-      deep: true
-    },
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
 	<footer class="footer">
         <span class="todo-count">
-          <strong>{{ activeCount }}</strong> {{ items }} left
+          <strong>{{ activeTodos.length }}</strong> {{ items }} left
         </span>
         <ul class="filters">
           <li><a href="#/all" :class="{ 'selected' : this.currentFilter === 'all'}">All</a></li>
@@ -18,17 +18,24 @@
 </template>
 
 <script type = "text/javascript" >
-import { store } from '../store.js'
+import { mapGetters } from 'vuex'
 
 const ALLOWED_FILTERS = ['all', 'active', 'completed']
 const DEFAULT_FILTER = 'all'
 
 export default {
-	props: {
-		activeCount: Number,
-		completedTodos: Array,
-		currentFilter: String
-	},
+	computed: {
+		currentFilter () {
+			this.$store.state.filter
+		},
+		items () {
+			return (this.activeTodos.length == 1 ? 'item' : 'items') 
+		},
+  		...mapGetters({
+  			completedTodos: 'getCompletedTodos',
+  			activeTodos: 'getActiveTodos'
+		})
+    },
 	mounted() {
 		this.setFilter()
 		window.addEventListener('hashchange', this.setFilter);
@@ -37,21 +44,16 @@ export default {
 		setFilter() {
 			const filter = window.location.hash.replace(/#\/?/, '');
 		    if (ALLOWED_FILTERS.includes(filter)) {
-		      store.setFilter(filter)
+		      this.$store.dispatch('setFilter', filter)
 		    } else {
 		      window.location.hash = ''
-		      store.setFilter(DEFAULT_FILTER)
+		      this.$store.dispatch('setFilter', DEFAULT_FILTER)
 		    }
 		},
 		clearCompleted() {
 			this.completedTodos.forEach(function(todo) {
-				store.deleteTodo(todo)
-			});
-		}
-	},
-	computed: {
-		items () {
-			return (this.activeCount == 1 ? 'item' : 'items') 
+				this.$store.dispatch('deleteTodo', todo)
+			}.bind(this));
 		}
 	}
 }  
